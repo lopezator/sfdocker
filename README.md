@@ -14,3 +14,7 @@ bpkg install lopezator/sfdocker
 
 ln -s app/deps/bin/sfdocker docker
 
+* Set  default container name value in your Symfony's parameters.yml (php-fpm container) like this:
+
+sfdocker_default_container: myproject-php-fpm
+
