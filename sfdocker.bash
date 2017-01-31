@@ -82,7 +82,7 @@ if [[ $1 == "destroy" ]]; then
     response=${response,,}
     if [[ $response =~ ^(yes|y| ) ]] | [ -z $response ]; then
         # Levantar los contenedores, por si no estuvieran todos levantados
-        docker-compose up -d --remove-orphans
+        $COMPOSE up -d --remove-orphans
         # Parar todos los contenedores y después eliminarlos
         docker stop $(docker ps -a -q)
         docker rm $(docker ps -a -q)
