@@ -1,7 +1,6 @@
 {
   "name": "sfdocker",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Bash wrapper for managing docker-compose based symfony projects",
-  "scripts": [ "sfdocker.bash" ],
-  "files": [ "README.md" ]
+  "scripts": [ "sfdocker.bash", "README.md" ]
 }
