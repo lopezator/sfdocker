@@ -1,0 +1,1 @@
+* Move README.md from "scripts" to "files" section in package.json when the issue "400: invalid request" between bpkg and github has been fixed
