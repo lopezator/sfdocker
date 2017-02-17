@@ -18,3 +18,39 @@ ln -s app/deps/bin/sfdocker docker
 
 sfdocker_default_container: myproject-php-fpm
 
+* Commands inside the docker wrapper
+
+* Start docker:
+
+./docker start
+
+* Enter in docker (default value: <sfdocker_default_container>):
+
+./docker enter <contenedor>
+
+* Stop docker:
+
+./docker stop
+
+* Restart docker:
+
+./docker restart
+
+* Destroy docker:
+
+./docker destroy
+
+* Docker logs (default value: <sfdocker_default_container>):
+
+./docker log <contenedor/all>
+
+* Clear symfony cache (default value: dev):
+
+./docker cache <dev/prod/test/all>
+
+* Run composer:
+
+./docker composer <install/update/require>
+
+(Starts composer inside the container, so you can send any other composer parameter 
+, if it's wrong, composer itself will return the error)

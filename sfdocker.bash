@@ -38,7 +38,7 @@ if [[ $1 == "start" ]]; then
 fi
 
 if [[ $1 == "stop" ]]; then
-    $COMPOSE up -d --build
+    $COMPOSE kill
 fi
 
 if [[ $1 == "restart" ]]; then
@@ -62,6 +62,11 @@ if [[ $1 == "logs" ]]; then
     else
       $COMPOSE logs
     fi
+fi
+
+# Code handling (pre-commit hook)
+if [[ $1 == "ccode" ]]; then
+    $COMPOSE exec -T $CONTAINER $BASH_C "php app/hooks/pre-commit.php"
 fi
 
 # Cache handling
