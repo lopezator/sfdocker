@@ -48,6 +48,10 @@ sfdocker_default_container: myproject-php-fpm
 
 ./docker cache <dev/prod/test/all>
 
+* Check code compliance:
+
+./docker ccode
+
 * Run composer:
 
 ./docker composer <install/update/require>

@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Funciones ##########################################################
 parse_yaml() {
    local prefix=$2
    local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
@@ -16,8 +17,51 @@ parse_yaml() {
    }'
 }
 
-eval $(parse_yaml app/config/parameters.yml "yml_")
+require_clean_work_tree () {
+    # Update the index
+    git update-index -q --ignore-submodules --refresh
+    err=0
 
+    # check for unstaged changes in the working tree
+    if [[ $(check_unstaged_files) > 0 ]]; then
+        err=1
+    fi
+
+    # Check untracked files in the working tree
+    if [[ $(check_untracked_files) > 0 ]]; then
+        err=1
+    fi
+
+    echo "$err"
+}
+
+function check_unstaged_files {
+    git diff --no-ext-diff --quiet --exit-code
+    echo $?
+}
+
+function check_untracked_files {
+   expr `git status --porcelain 2>/dev/null| grep "^??" | wc -l`
+}
+
+confirm() {
+    read -r -p "${1:-Are you sure? [Y/n]} " response
+    case "$response" in
+        [yY][eE][sS]|[yY])
+            true
+            ;;
+        *)
+            if [ -z $response ]; then
+                true
+            else
+                false
+            fi
+            ;;
+    esac
+}
+# Funciones END #######################################################
+
+eval $(parse_yaml app/config/parameters.yml "yml_")
 
 CONTAINER=$yml_parameters__sfdocker_default_container
 CACHE_ENV="dev"
@@ -26,6 +70,8 @@ EXEC="$COMPOSE exec --user www-data $CONTAINER"
 EXEC_PRIVILEGED="$COMPOSE exec --user root $CONTAINER"
 BASH_C="bash -c"
 ERROR_PREFIX="ERROR ::"
+WARNING_PREFIX="WARNING ::"
+HOOK=1
 
 if [[ $# < 1 ]]; then
     echo "$ERROR_PREFIX Dame un argumento madafaka! (start/stop/restart/destroy/enter/cache/composer)";
@@ -66,7 +112,14 @@ fi
 
 # Code handling (pre-commit hook)
 if [[ $1 == "ccode" ]]; then
-    $COMPOSE exec -T $CONTAINER $BASH_C "php app/hooks/pre-commit.php"
+    #if [[ $(require_clean_work_tree) == 1 ]]; then
+    #  if ! confirm "$WARNING_PREFIX Tienes ficheros sin añadir a staging que no se comprobarán ¿Quieres continuar? [Y/n]"; then
+    #    HOOK=0
+    #  fi
+    #fi
+    #if [[ $HOOK == 1 ]]; then
+      $COMPOSE exec -T $CONTAINER $BASH_C "php app/hooks/pre-commit.php"
+    #fi
 fi
 
 # Cache handling
@@ -83,9 +136,7 @@ fi
 
 # Destroy handling
 if [[ $1 == "destroy" ]]; then
-    read -p "Te vas a cepillar todos los contenedores docker que tengas en tu equipo. ¿Estás seguro? [Y/n]" -n 1 -r
-    response=${response,,}
-    if [[ $response =~ ^(yes|y| ) ]] | [ -z $response ]; then
+    if confirm "Te vas a cepillar todos los contenedores docker que tengas en tu equipo. ¿Estás seguro? [Y/n] "; then
         # Levantar los contenedores, por si no estuvieran todos levantados
         $COMPOSE up -d --remove-orphans
         # Parar todos los contenedores y después eliminarlos
