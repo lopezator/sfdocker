@@ -27,7 +27,7 @@ sfdocker_default_container: myproject-php-fpm
 * Enter in docker (default value: <sfdocker_default_container>)
 <-p> optional modifier starts the container as privileged user (root):
 
-./docker enter <contenedor> <-p>
+./docker enter <container> <-p>
 
 * Stop docker:
 
@@ -43,7 +43,7 @@ sfdocker_default_container: myproject-php-fpm
 
 * Docker logs (default value: <sfdocker_default_container>):
 
-./docker log <contenedor/all>
+./docker log <container/all>
 
 * Clear symfony cache (default value: dev):
 
