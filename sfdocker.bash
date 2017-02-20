@@ -17,32 +17,32 @@ parse_yaml() {
    }'
 }
 
-require_clean_work_tree () {
-    # Update the index
-    git update-index -q --ignore-submodules --refresh
-    err=0
+#require_clean_work_tree () {
+#    # Update the index
+#    git update-index -q --ignore-submodules --refresh
+#    err=0
 
-    # check for unstaged changes in the working tree
-    if [[ $(check_unstaged_files) > 0 ]]; then
-        err=1
-    fi
+#    # check for unstaged changes in the working tree
+#    if [[ $(check_unstaged_files) > 0 ]]; then
+#        err=1
+#    fi
 
-    # Check untracked files in the working tree
-    if [[ $(check_untracked_files) > 0 ]]; then
-        err=1
-    fi
+#    # Check untracked files in the working tree
+#    if [[ $(check_untracked_files) > 0 ]]; then
+#        err=1
+#    fi
 
-    echo "$err"
-}
+#    echo "$err"
+#}
 
-function check_unstaged_files {
-    git diff --no-ext-diff --quiet --exit-code
-    echo $?
-}
+#function check_unstaged_files {
+#    git diff --no-ext-diff --quiet --exit-code
+#    echo $?
+#}
 
-function check_untracked_files {
-   expr `git status --porcelain 2>/dev/null| grep "^??" | wc -l`
-}
+#function check_untracked_files {
+#   expr `git status --porcelain 2>/dev/null| grep "^??" | wc -l`
+#}
 
 confirm() {
     read -r -p "${1:-Are you sure? [Y/n]} " response
@@ -66,8 +66,8 @@ eval $(parse_yaml app/config/parameters.yml "yml_")
 CONTAINER=$yml_parameters__sfdocker_default_container
 CACHE_ENV="dev"
 COMPOSE="docker-compose"
-EXEC="$COMPOSE exec --user www-data $CONTAINER"
-EXEC_PRIVILEGED="$COMPOSE exec --user root $CONTAINER"
+EXEC="$COMPOSE exec --user www-data"
+EXEC_PRIVILEGED="$COMPOSE exec --user root"
 BASH_C="bash -c"
 ERROR_PREFIX="ERROR ::"
 WARNING_PREFIX="WARNING ::"
@@ -93,10 +93,14 @@ if [[ $1 == "restart" ]]; then
 fi
 
 if [[ $1 == "enter" ]]; then
-    if [[ $# > 1 ]]; then
+    if [[ $# > 1 && $2 != "-p" ]]; then
       CONTAINER=$2
     fi
-    $EXEC bash
+    if [[ "${@: -1}" == "-p" ]]; then
+      $EXEC_PRIVILEGED $CONTAINER bash
+    else
+      $EXEC $CONTAINER bash
+    fi
 fi
 
 if [[ $1 == "logs" ]]; then
@@ -112,14 +116,14 @@ fi
 
 # Code handling (pre-commit hook)
 if [[ $1 == "ccode" ]]; then
-    #if [[ $(require_clean_work_tree) == 1 ]]; then
-    #  if ! confirm "$WARNING_PREFIX Tienes ficheros sin añadir a staging que no se comprobarán ¿Quieres continuar? [Y/n]"; then
-    #    HOOK=0
-    #  fi
-    #fi
-    #if [[ $HOOK == 1 ]]; then
+    if [[ $(require_clean_work_tree) == 1 ]]; then
+      if ! confirm "$WARNING_PREFIX Tienes ficheros sin añadir a staging que no se comprobarán ¿Quieres continuar? [Y/n]"; then
+        HOOK=0
+      fi
+    fi
+    if [[ $HOOK == 1 ]]; then
       $COMPOSE exec -T $CONTAINER $BASH_C "php app/hooks/pre-commit.php"
-    #fi
+    fi
 fi
 
 # Cache handling
@@ -128,9 +132,9 @@ if [[ $1 == "cache" ]]; then
       CACHE_ENV=$2
     fi
     if [[ $2 == "all" ]]; then
-        $EXEC $BASH_C "php app/console ca:cl --env=dev;php app/console ca:cl --env=test;php app/console ca:cl --env=prod";
+        $EXEC $CONTAINER $BASH_C "php app/console ca:cl --env=dev;php app/console ca:cl --env=test;php app/console ca:cl --env=prod";
     else
-        $EXEC $BASH_C "php app/console ca:cl --env=$CACHE_ENV";
+        $EXEC $CONTAINER $BASH_C "php app/console ca:cl --env=$CACHE_ENV";
     fi
 fi
 
@@ -151,7 +155,7 @@ if [[ $1 == "composer" ]]; then
         echo "$ERROR_PREFIX ¡Necesito un segundo un argumento madafaka! (install/update/require/...)";
         exit 1;
     fi
-    $EXEC_PRIVILEGED $BASH_C "mv /etc/php/7.0/cli/conf.d/20-xdebug.ini /etc/php/7.0/cli/conf.d/20-xdebug.ini.bak";
-    $EXEC $BASH_C "$1 $2 $3 $4";
-    $EXEC_PRIVILEGED $BASH_C "mv /etc/php/7.0/cli/conf.d/20-xdebug.ini.bak /etc/php/7.0/cli/conf.d/20-xdebug.ini";
+    $EXEC_PRIVILEGED $CONTAINER $BASH_C "mv /etc/php/7.0/cli/conf.d/20-xdebug.ini /etc/php/7.0/cli/conf.d/20-xdebug.ini.bak";
+    $EXEC $CONTAINER $BASH_C "$1 $2 $3 $4";
+    $EXEC_PRIVILEGED $CONTAINER $BASH_C "mv /etc/php/7.0/cli/conf.d/20-xdebug.ini.bak /etc/php/7.0/cli/conf.d/20-xdebug.ini";
 fi

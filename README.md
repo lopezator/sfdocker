@@ -24,9 +24,10 @@ sfdocker_default_container: myproject-php-fpm
 
 ./docker start
 
-* Enter in docker (default value: <sfdocker_default_container>):
+* Enter in docker (default value: <sfdocker_default_container>)
+<-p> optional modifier starts the container as privileged user (root):
 
-./docker enter <contenedor>
+./docker enter <contenedor> <-p>
 
 * Stop docker:
 
