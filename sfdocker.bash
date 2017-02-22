@@ -17,32 +17,32 @@ parse_yaml() {
    }'
 }
 
-#require_clean_work_tree () {
-#    # Update the index
-#    git update-index -q --ignore-submodules --refresh
-#    err=0
+require_clean_work_tree () {
+    # Update the index
+    git update-index -q --ignore-submodules --refresh
+    err=0
 
-#    # check for unstaged changes in the working tree
-#    if [[ $(check_unstaged_files) > 0 ]]; then
-#        err=1
-#    fi
+    # check for unstaged changes in the working tree
+    if [[ $(check_unstaged_files) > 0 ]]; then
+        err=1
+    fi
 
-#    # Check untracked files in the working tree
-#    if [[ $(check_untracked_files) > 0 ]]; then
-#        err=1
-#    fi
+    # Check untracked files in the working tree
+    if [[ $(check_untracked_files) > 0 ]]; then
+        err=1
+    fi
 
-#    echo "$err"
-#}
+    echo "$err"
+}
 
-#function check_unstaged_files {
-#    git diff --no-ext-diff --quiet --exit-code
-#    echo $?
-#}
+function check_unstaged_files {
+    git diff --no-ext-diff --quiet --exit-code
+    echo $?
+}
 
-#function check_untracked_files {
-#   expr `git status --porcelain 2>/dev/null| grep "^??" | wc -l`
-#}
+function check_untracked_files {
+   expr `git status --porcelain 2>/dev/null| grep "^??" | wc -l`
+}
 
 confirm() {
     read -r -p "${1:-Are you sure? [Y/n]} " response
@@ -74,7 +74,7 @@ WARNING_PREFIX="WARNING ::"
 HOOK=1
 
 if [[ $# < 1 ]]; then
-    echo "$ERROR_PREFIX Dame un argumento madafaka! (start/stop/restart/destroy/enter/cache/composer)";
+    echo "$ERROR_PREFIX Dame un argumento madafaka! (start/stop/restart/enter/logs/console/ccode/cache/destroy/composer)";
     exit 1;
 fi
 
@@ -122,9 +122,9 @@ fi
 # Code handling (pre-commit hook)
 if [[ $1 == "ccode" ]]; then
     if [[ $(require_clean_work_tree) == 1 ]]; then
-      if ! confirm "$WARNING_PREFIX Tienes ficheros sin añadir a staging que no se comprobarán ¿Quieres continuar? [Y/n]"; then
-        HOOK=0
-      fi
+      echo "#########################################################################"
+      echo "# $WARNING_PREFIX Tienes ficheros sin añadir a staging que no se comprobarán #"
+      echo "#########################################################################"
     fi
     if [[ $HOOK == 1 ]]; then
       $COMPOSE exec -T $CONTAINER $BASH_C "php app/hooks/pre-commit.php"
@@ -160,7 +160,7 @@ if [[ $1 == "composer" ]]; then
         echo "$ERROR_PREFIX ¡Necesito un segundo un argumento madafaka! (install/update/require/...)";
         exit 1;
     fi
-    $EXEC_PRIVILEGED $CONTAINER $BASH_C "mv /etc/php/7.0/cli/conf.d/20-xdebug.ini /etc/php/7.0/cli/conf.d/20-xdebug.ini.bak";
+    $EXEC_PRIVILEGED $CONTAINER $BASH_C "mv /etc/php/7.1/cli/conf.d/20-xdebug.ini /etc/php/7.1/cli/conf.d/20-xdebug.ini.bak";
     $EXEC $CONTAINER $BASH_C "$1 $2 $3 $4";
-    $EXEC_PRIVILEGED $CONTAINER $BASH_C "mv /etc/php/7.0/cli/conf.d/20-xdebug.ini.bak /etc/php/7.0/cli/conf.d/20-xdebug.ini";
+    $EXEC_PRIVILEGED $CONTAINER $BASH_C "mv /etc/php/7.1/cli/conf.d/20-xdebug.ini.bak /etc/php/7.1/cli/conf.d/20-xdebug.ini";
 fi
