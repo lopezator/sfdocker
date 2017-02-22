@@ -114,6 +114,11 @@ if [[ $1 == "logs" ]]; then
     fi
 fi
 
+# Symfony console handling
+if [[ $1 == "console" ]]; then
+     $EXEC $CONTAINER $BASH_C "php app/console $2 $3 $4";
+fi
+
 # Code handling (pre-commit hook)
 if [[ $1 == "ccode" ]]; then
     if [[ $(require_clean_work_tree) == 1 ]]; then

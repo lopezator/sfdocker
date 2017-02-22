@@ -12,7 +12,7 @@ bpkg install lopezator/sfdocker
 
 * Link library within composer.json (post-install && post-update):
 
-ln -s app/deps/bin/sfdocker docker
+ln -s app/deps/bin/sfdocker sfdocker
 
 * Set  default container name value in your Symfony's parameters.yml (php-fpm container) like this:
 
@@ -22,40 +22,44 @@ sfdocker_default_container: myproject-php-fpm
 
 * Start docker:
 
-./docker start
+./sfdocker start
 
 * Enter in docker (default value: <sfdocker_default_container>)
 <-p> optional modifier starts the container as privileged user (root):
 
-./docker enter <container> <-p>
+./sfdocker enter <container> <-p>
 
 * Stop docker:
 
-./docker stop
+./sfdocker stop
 
 * Restart docker:
 
-./docker restart
+./sfdocker restart
 
 * Destroy docker:
 
-./docker destroy
+./sfdocker destroy
 
 * Docker logs (default value: <sfdocker_default_container>):
 
-./docker log <container/all>
+./sfdocker log <container/all>
 
 * Clear symfony cache (default value: dev):
 
-./docker cache <dev/prod/test/all>
+./sfdocker cache <dev/prod/test/all>
 
 * Check code compliance:
 
-./docker ccode
+./sfdocker ccode
+
+* Execute symfony console:
+
+./sfdocker console <args>
 
 * Run composer:
 
-./docker composer <install/update/require>
+./sfdocker composer <args>
 
 (Starts composer inside the container, so you can send any other composer parameter 
 , if it's wrong, composer itself will return the error)
