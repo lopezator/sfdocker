@@ -63,10 +63,17 @@ confirm() {
 
 eval $(parse_yaml app/config/parameters.yml "yml_")
 
+COMPOSE="docker-compose"
+COMPOSE_FILE="$(ls docker-compose*)"
+
+if [[ $COMPOSE_FILE != "docker-compose.yml" ]]; then
+  COMPOSE="$COMPOSE -f $COMPOSE_FILE"
+fi
+
 CONTAINER=$yml_parameters__sfdocker_default_container
 CACHE_ENV="dev"
-COMPOSE="docker-compose"
 EXEC="$COMPOSE exec --user www-data"
+EXEC_T="$COMPOSE exec -T --user www-data"
 EXEC_PRIVILEGED="$COMPOSE exec --user root"
 BASH_C="bash -c"
 ERROR_PREFIX="ERROR ::"
@@ -127,7 +134,7 @@ if [[ $1 == "ccode" ]]; then
       echo "#########################################################################"
     fi
     if [[ $HOOK == 1 ]]; then
-      $COMPOSE exec -T $CONTAINER $BASH_C "php app/hooks/pre-commit.php"
+      $COMPOSE $EXEC_T $CONTAINER $BASH_C "php app/hooks/pre-commit.php"
     fi
 fi
 
