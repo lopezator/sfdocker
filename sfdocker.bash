@@ -134,7 +134,7 @@ if [[ $1 == "ccode" ]]; then
       echo "#########################################################################"
     fi
     if [[ $HOOK == 1 ]]; then
-      $COMPOSE $EXEC_T $CONTAINER $BASH_C "php app/hooks/pre-commit.php"
+      $EXEC_T $CONTAINER $BASH_C "php app/hooks/pre-commit.php"
     fi
 fi
 
