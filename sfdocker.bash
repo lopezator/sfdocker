@@ -79,6 +79,7 @@ BASH_C="bash -c"
 ERROR_PREFIX="ERROR ::"
 WARNING_PREFIX="WARNING ::"
 HOOK=1
+FOUND=0
 
 if [[ $# < 1 ]]; then
     echo "$ERROR_PREFIX Dame un argumento madafaka! (start/stop/restart/enter/logs/console/ccode/cache/destroy/composer)";
@@ -88,15 +89,18 @@ fi
 # Docker handling
 if [[ $1 == "start" ]]; then
     $COMPOSE up -d --build
+    FOUND=1
 fi
 
 if [[ $1 == "stop" ]]; then
     $COMPOSE kill
+    FOUND=1
 fi
 
 if [[ $1 == "restart" ]]; then
     $COMPOSE kill
     $COMPOSE up -d --build
+    FOUND=1
 fi
 
 if [[ $1 == "enter" ]]; then
@@ -108,6 +112,7 @@ if [[ $1 == "enter" ]]; then
     else
       $EXEC $CONTAINER bash
     fi
+    FOUND=1
 fi
 
 if [[ $1 == "logs" ]]; then
@@ -119,11 +124,13 @@ if [[ $1 == "logs" ]]; then
     else
       $COMPOSE logs
     fi
+    FOUND=1
 fi
 
 # Symfony console handling
 if [[ $1 == "console" ]]; then
      $EXEC $CONTAINER $BASH_C "php app/console $2 $3 $4";
+     FOUND=1
 fi
 
 # Code handling (pre-commit hook)
@@ -136,6 +143,7 @@ if [[ $1 == "ccode" ]]; then
     if [[ $HOOK == 1 ]]; then
       $EXEC_T $CONTAINER $BASH_C "php app/hooks/pre-commit.php"
     fi
+    FOUND=1
 fi
 
 # Cache handling
@@ -148,6 +156,7 @@ if [[ $1 == "cache" ]]; then
     else
         $EXEC $CONTAINER $BASH_C "php app/console ca:cl --env=$CACHE_ENV";
     fi
+    FOUND=1
 fi
 
 # Destroy handling
@@ -159,6 +168,7 @@ if [[ $1 == "destroy" ]]; then
         docker stop $(docker ps -a -q)
         docker rm $(docker ps -a -q)
     fi
+    FOUND=1
 fi
 
 # Composer handling
@@ -170,4 +180,24 @@ if [[ $1 == "composer" ]]; then
     $EXEC_PRIVILEGED $CONTAINER $BASH_C "mv /etc/php/7.1/cli/conf.d/20-xdebug.ini /etc/php/7.1/cli/conf.d/20-xdebug.ini.bak";
     $EXEC $CONTAINER $BASH_C "$1 $2 $3 $4";
     $EXEC_PRIVILEGED $CONTAINER $BASH_C "mv /etc/php/7.1/cli/conf.d/20-xdebug.ini.bak /etc/php/7.1/cli/conf.d/20-xdebug.ini";
+    FOUND=1
+fi
+
+# Help handling
+if [[ $1 == "--help" ]]; then
+    echo "###################################################";
+    echo "AYUDA DE SFDOCKER:\n";
+    echo "1.- Contenedores: ./sfdocker <start/stop/restart/destroy/enter/logs>";
+    echo "2.- Consola de symfony: ./sfdocker console <args>";
+    echo "3.- Caché de symfony: ./sfdocker cache <dev/prod/all>";
+    echo "4.- Check de código pre-commit: ./sfdocker ccode";
+    echo "5.- Composer: ./sfdocker composer <args>";
+    echo "###################################################";
+    FOUND=1
+fi
+
+# Error handling
+if [[ $FOUND == 0 ]]; then
+  echo "$ERROR_PREFIX ¿Y qué tal si introduces un comando que exista cabeza de chorlit@?";
+  echo "./sfdocker --help para ayuda.";
 fi
