@@ -177,9 +177,13 @@ if [[ $1 == "composer" ]]; then
         echo "$ERROR_PREFIX ¡Necesito un segundo un argumento madafaka! (install/update/require/...)";
         exit 1;
     fi
-    $EXEC_PRIVILEGED $CONTAINER $BASH_C "mv /etc/php/7.1/cli/conf.d/20-xdebug.ini /etc/php/7.1/cli/conf.d/20-xdebug.ini.bak";
+    if [ -f /etc/php/7.1/cli/conf.d/20-xdebug.ini ]; then
+        $EXEC_PRIVILEGED $CONTAINER $BASH_C "mv /etc/php/7.1/cli/conf.d/20-xdebug.ini /etc/php/7.1/cli/conf.d/20-xdebug.ini.bak";
+    fi
     $EXEC $CONTAINER $BASH_C "$1 $2 $3 $4";
-    $EXEC_PRIVILEGED $CONTAINER $BASH_C "mv /etc/php/7.1/cli/conf.d/20-xdebug.ini.bak /etc/php/7.1/cli/conf.d/20-xdebug.ini";
+    if [ -f /etc/php/7.1/cli/conf.d/20-xdebug.ini.bak ]; then
+        $EXEC_PRIVILEGED $CONTAINER $BASH_C "mv /etc/php/7.1/cli/conf.d/20-xdebug.ini.bak /etc/php/7.1/cli/conf.d/20-xdebug.ini";
+    fi
     FOUND=1
 fi
 
