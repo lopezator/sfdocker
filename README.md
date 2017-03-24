@@ -18,16 +18,15 @@ ln -s app/deps/bin/sfdocker sfdocker
 
 sfdocker_default_container: myproject-php-fpm
 
-* Commands inside the docker wrapper
+Commands inside the docker wrapper
+==================================
+
+1.- Docker containers handling:
+------------------------------
 
 * Start docker:
 
 ./sfdocker start
-
-* Enter in docker (default value: <sfdocker_default_container>)
-<-p> optional modifier starts the container as privileged user (root):
-
-./sfdocker enter <container> <-p>
 
 * Stop docker:
 
@@ -41,9 +40,25 @@ sfdocker_default_container: myproject-php-fpm
 
 ./sfdocker destroy
 
+* Enter in docker (default value: <sfdocker_default_container>)
+<-p> optional modifier starts the container as privileged user (root):
+
+./sfdocker enter <container> <-p>
+
+* Show running containers:
+
+./sfdocker ps
+
 * Docker logs (default value: <sfdocker_default_container>):
 
-./sfdocker log <container/all>
+./sfdocker logs <container/all>
+
+2.- Symfony handling & code tools:
+----------------------------------
+
+* Execute symfony console:
+
+./sfdocker console <args>
 
 * Clear symfony cache (default value: dev):
 
@@ -53,13 +68,9 @@ sfdocker_default_container: myproject-php-fpm
 
 ./sfdocker ccode
 
-* Execute symfony console:
-
-./sfdocker console <args>
-
 * Run composer:
 
 ./sfdocker composer <args>
 
 (Starts composer inside the container, so you can send any other composer parameter 
-, if it's wrong, composer itself will return the error)
+, if it's wrong, composer itself will return the error).

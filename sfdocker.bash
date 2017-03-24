@@ -187,11 +187,16 @@ if [[ $1 == "composer" ]]; then
     FOUND=1
 fi
 
+if [[ $1 == "ps" ]]; then
+    $COMPOSE ps;
+    FOUND=1;
+fi
+
 # Help handling
 if [[ $1 == "--help" ]]; then
     echo "###################################################";
-    echo "AYUDA DE SFDOCKER:\n";
-    echo "1.- Contenedores: ./sfdocker <start/stop/restart/destroy/enter/logs>";
+    echo "AYUDA DE SFDOCKER:";
+    echo "1.- Contenedores: ./sfdocker <start/stop/restart/destroy/enter/ps/logs>";
     echo "2.- Consola de symfony: ./sfdocker console <args>";
     echo "3.- Caché de symfony: ./sfdocker cache <dev/prod/all>";
     echo "4.- Check de código pre-commit: ./sfdocker ccode";
