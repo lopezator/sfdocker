@@ -59,6 +59,29 @@ confirm() {
             ;;
     esac
 }
+
+function get_latest_dump {
+    if [ ! -d "$DUMP_DIRECTORY" ]; then
+       mkdir -p data/dumps;
+    fi
+    LATEST_DUMP="$(ls data/dumps/ -1t | head -1)"
+    echo $LATEST_DUMP
+}
+
+function get_database_container {
+    MYSQL_CONTAINER=$(./sfdocker ps | grep mysql);
+    if [[ $MYSQL_CONTAINER == "" ]]; then
+        MYSQL_CONTAINER=$(./sfdocker ps | grep percona);
+    fi
+    if [[ $MYSQL_CONTAINER == "" ]]; then
+        echo "$ERROR_PREFIX No se pudo encontrar ningun contenedor en ejecución que contenga las palabras clave 'mysql' y/o 'percona'"
+        exit 1;
+    fi
+
+    set -- "$MYSQL_CONTAINER"
+    IFS=" "; declare -a Array=($*)
+    echo "${Array[0]}"
+}
 # Funciones END #######################################################
 
 eval $(parse_yaml app/config/parameters.yml "yml_")
@@ -78,6 +101,7 @@ EXEC_PRIVILEGED="$COMPOSE exec --user root"
 BASH_C="bash -c"
 ERROR_PREFIX="ERROR ::"
 WARNING_PREFIX="WARNING ::"
+INFO_PREFIX="INFO ::"
 HOOK=1
 FOUND=0
 
@@ -192,6 +216,55 @@ if [[ $1 == "ps" ]]; then
     FOUND=1;
 fi
 
+if [[ $1 == "mysql" ]]; then
+     if [[ $# < 2 ]]; then
+        echo "$ERROR_PREFIX ¡Necesito un segundo un argumento madafaka! (dump/restore)"
+        exit 1
+     fi
+     FOUND=1
+     NOW_DATE=`date +%d-%m-%Y_%H-%M-%S`
+     DATABASE_CONTAINER=$(get_database_container)
+
+     DATABASE_HOST=$yml_parameters__database_host
+     DATABASE_PORT=$yml_parameters__database_port
+     DATABASE_NAME=$yml_parameters__database_name
+     DATABASE_USER=$yml_parameters__database_user
+     DATABASE_PASSWORD=$yml_parameters__database_password
+
+     DUMP_DIRECTORY="data/dumps/"
+     DUMP_NAME=$(echo ${DATABASE_NAME}_${NOW_DATE})".sql"
+     DUMP_FILE=$DUMP_DIRECTORY$DUMP_NAME
+     DUMP_INFO="$INFO_PREFIX Exportando la base de datos $DATABASE_NAME al fichero: $DUMP_FILE"
+
+     RESTORE_FILE=$(get_latest_dump)
+     RESTORE_PATH=$DUMP_DIRECTORY$RESTORE_FILE
+
+     DUMP_CMD="docker exec -i $DATABASE_CONTAINER mysqldump -h $DATABASE_HOST -P $DATABASE_PORT -u $DATABASE_USER -p$DATABASE_PASSWORD $DATABASE_NAME > $DUMP_FILE 2>/dev/null"
+
+     if [[ -z "$RESTORE_FILE" && $2 == "restore" ]]; then
+        echo "¡No existe ningun dump en la carpeta $DUMP_DIRECTORY!"
+        exit 1;
+     fi
+
+     RESTORE_CMD="docker exec -i $DATABASE_CONTAINER mysql -u$DATABASE_USER -p$DATABASE_PASSWORD $DATABASE_NAME < $RESTORE_PATH 2>/dev/null"
+     RESTORE_INFO="$INFO_PREFIX Importando la base de datos $DATABASE_NAME al fichero: $RESTORE_PATH"
+
+     if [[ $2 == "restore" ]]; then
+        if confirm "Te dispones a restaurar la última versión de la base de datos: $RESTORE_FILE ¿Estás seguro? [Y/n] "; then
+            eval $RESTORE_CMD
+            printf "\n¡Restauración efectuda correctamente!\n\n"
+        fi
+     elif [[ $2 == "dump" ]]; then
+        echo "$DUMP_FILE"
+        eval $DUMP_CMD
+     elif [[ $2 == "clear" ]]; then
+        cd $DUMP_DIRECTORY && find . -type f ! -name $RESTORE_FILE -delete
+        printf "\n¡Limpieza de dumps efectuda correctamente!\n\n"
+     else
+        FOUND=0;
+     fi
+fi
+
 # Help handling
 if [[ $1 == "--help" ]]; then
     echo "###################################################";
@@ -201,6 +274,7 @@ if [[ $1 == "--help" ]]; then
     echo "3.- Caché de symfony: ./sfdocker cache <dev/prod/all>";
     echo "4.- Check de código pre-commit: ./sfdocker ccode";
     echo "5.- Composer: ./sfdocker composer <args>";
+    echo "6.- Mysql: ./sfdocker mysql <dump/restore/clear>";
     echo "###################################################";
     FOUND=1
 fi
