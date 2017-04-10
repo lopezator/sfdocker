@@ -106,24 +106,28 @@ HOOK=1
 FOUND=0
 
 if [[ $# < 1 ]]; then
-    echo "$ERROR_PREFIX Dame un argumento madafaka! (start/stop/restart/enter/logs/console/ccode/cache/destroy/composer)";
+    echo "$ERROR_PREFIX Dame un argumento madafaka! (start/stop/restart/enter/logs/console/ccode/cache/destroy/composer/ps/mysql)";
     exit 1;
 fi
 
 # Docker handling
 if [[ $1 == "start" ]]; then
-    $COMPOSE up -d --build
+    if [[ $# > 1 && $2 == "-b" ]]; then
+      $COMPOSE up -d --build
+    else
+      $COMPOSE up -d
+    fi
     FOUND=1
 fi
 
 if [[ $1 == "stop" ]]; then
-    $COMPOSE kill
+    $COMPOSE down
     FOUND=1
 fi
 
 if [[ $1 == "restart" ]]; then
-    $COMPOSE kill
-    $COMPOSE up -d --build
+    $COMPOSE down
+    $COMPOSE up
     FOUND=1
 fi
 
