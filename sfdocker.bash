@@ -127,7 +127,7 @@ fi
 
 if [[ $1 == "restart" ]]; then
     $COMPOSE down
-    $COMPOSE up
+    $COMPOSE up -d
     FOUND=1
 fi
 
