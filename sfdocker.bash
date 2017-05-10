@@ -106,7 +106,7 @@ HOOK=1
 FOUND=0
 
 if [[ $# < 1 ]]; then
-    echo "$ERROR_PREFIX Dame un argumento madafaka! (start/stop/restart/enter/logs/console/ccode/cache/destroy/composer/ps/mysql)";
+    echo "$ERROR_PREFIX Dame un argumento madafaka! (start/stop/restart/enter/logs/console/ccode/cache/destroy/composer/gulp/ps/mysql)";
     exit 1;
 fi
 
@@ -215,6 +215,12 @@ if [[ $1 == "composer" ]]; then
     FOUND=1
 fi
 
+# Gulp handling
+if [[ $1 == "gulp" ]]; then
+    $EXEC $CONTAINER $BASH_C "$1 $2 $3 $4";
+    FOUND=1;
+fi
+
 if [[ $1 == "ps" ]]; then
     $COMPOSE ps;
     FOUND=1;
@@ -278,7 +284,8 @@ if [[ $1 == "--help" ]]; then
     echo "3.- Caché de symfony: ./sfdocker cache <dev/prod/all>";
     echo "4.- Check de código pre-commit: ./sfdocker ccode";
     echo "5.- Composer: ./sfdocker composer <args>";
-    echo "6.- Mysql: ./sfdocker mysql <dump/restore/clear>";
+    echo "6.- Gulp: ./sfdocker gulp <args>";
+    echo "7.- Mysql: ./sfdocker mysql <dump/restore/clear>";
     echo "###################################################";
     FOUND=1
 fi
