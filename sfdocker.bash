@@ -221,6 +221,12 @@ if [[ $1 == "gulp" ]]; then
     FOUND=1;
 fi
 
+# Bower handling
+if [[ $1 == "bower" ]]; then
+    $EXEC $CONTAINER $BASH_C "$1 $2 $3 $4";
+    FOUND=1;
+fi
+
 if [[ $1 == "ps" ]]; then
     $COMPOSE ps;
     FOUND=1;
@@ -285,7 +291,8 @@ if [[ $1 == "--help" ]]; then
     echo "4.- Check de código pre-commit: ./sfdocker ccode";
     echo "5.- Composer: ./sfdocker composer <args>";
     echo "6.- Gulp: ./sfdocker gulp <args>";
-    echo "7.- Mysql: ./sfdocker mysql <dump/restore/clear>";
+    echo "7.- Bower: ./sfdocker bower <args>";
+    echo "8.- Mysql: ./sfdocker mysql <dump/restore/clear>";
     echo "###################################################";
     FOUND=1
 fi
