@@ -2,19 +2,19 @@
 
 * Install bpkg:
 
-sudo -s
+sudo -s<br />
 curl -Lo- "https://raw.githubusercontent.com/bpkg/bpkg/master/setup.sh" | bash
 
-* Download/Update package:
+* Install sfdocker package for the first time (if you are updating, goto point 3):
 
-cd app/
+cd app<br />
 bpkg install lopezator/sfdocker
 
 * Link library within composer.json (post-install && post-update):
 
 ln -s app/deps/bin/sfdocker sfdocker
 
-* Set  default container name value in your Symfony's parameters.yml (php-fpm container) like this:
+* Set  default container name value in your Symfony's parameters.yml/parameters.yml.dist (php-fpm container) like this:
 
 sfdocker_default_container: myproject-php-fpm
 
