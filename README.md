@@ -74,3 +74,10 @@ Commands inside the docker wrapper
 
 (Starts composer inside the container, so you can send any other composer parameter 
 , if it's wrong, composer itself will return the error).
+
+3.- Keep sfdocker up to date:
+-----------------------------
+
+* Update sfdocker:
+
+./sfdocker self-update
