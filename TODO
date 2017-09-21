@@ -1,2 +1,0 @@
-1.- Remove require_clean_work_tree, check_unstaged_files, check_untracked_files functions, shouldn't be needed.
-2.- Move README.md from "scripts" to "files" section in package.json when the issue "400: invalid request" between bpkg and github has been fixed.
