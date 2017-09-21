@@ -84,16 +84,9 @@ function get_database_container {
 }
 # Funciones END #######################################################
 
-eval $(parse_yaml app/config/parameters.yml "yml_")
-
 COMPOSE="docker-compose"
-COMPOSE_FILE="$(ls docker-compose*)"
-
-if [[ $COMPOSE_FILE != "docker-compose.yml" ]]; then
-  COMPOSE="$COMPOSE -f $COMPOSE_FILE"
-fi
-
-CONTAINER=$yml_parameters__sfdocker_default_container
+COMPOSE_FILE="$(ls docker-compose* 2> /dev/null)"
+PARAMETERS_FILE="$(ls app/config/parameters.yml 2> /dev/null)"
 CACHE_ENV="dev"
 EXEC="$COMPOSE exec --user www-data"
 EXEC_T="$COMPOSE exec -T --user www-data"
@@ -105,9 +98,30 @@ INFO_PREFIX="INFO ::"
 HOOK=1
 FOUND=0
 
-if [[ $# < 1 ]]; then
-    echo "$ERROR_PREFIX Dame un argumento madafaka! (start/stop/restart/enter/logs/console/ccode/cache/destroy/composer/gulp/ps/mysql)";
+if [[ !$PARAMETERS_FILE ]]; then
+  PARAMETERS_FILE="$(ls app/config/parameters.yml.dist 2> /dev/null)"
+  if [[ $PARAMETERS_FILE == "" ]]; then
+    echo "$ERROR_PREFIX ¡WTF! ¡No encuentro ningun parameters.yml ni parameters.yml.dist en la carpeta \"app/config\"!";
     exit 1;
+  fi
+fi
+
+eval $(parse_yaml $PARAMETERS_FILE "yml_")
+CONTAINER=$yml_parameters__sfdocker_default_container
+
+if [[ $COMPOSE_FILE != "docker-compose.yml" ]]; then
+  COMPOSE="$COMPOSE -f $COMPOSE_FILE"
+fi
+
+if [[ $# < 1 ]]; then
+    echo "$ERROR_PREFIX Dame un argumento madafaka! (start/stop/restart/enter/logs/console/ccode/cache/destroy/composer/gulp/ps/mysql/self-update)";
+    exit 1;
+fi
+
+# Sfdocker handling
+if [[ $1 == "self-update" ]]; then
+    rm -rf app/deps && cd app && bpkg install lopezator/sfdocker
+    FOUND=1
 fi
 
 # Docker handling
