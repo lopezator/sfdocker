@@ -100,7 +100,8 @@ INFO_PREFIX="INFO ::"
 HOOK=1
 FOUND=0
 
-if [[ !$PARAMETERS_FILE ]]; then
+
+if [[ $PARAMETERS_FILE == "" ]]; then
   PARAMETERS_FILE="$(ls app/config/parameters.yml.dist 2> /dev/null)"
   if [[ $PARAMETERS_FILE == "" ]]; then
     echo "$ERROR_PREFIX ¡WTF! ¡No encuentro ningun parameters.yml ni parameters.yml.dist en la carpeta \"app/config\"!";
