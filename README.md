@@ -14,9 +14,17 @@ bpkg install lopezator/sfdocker
 
 ln -s app/deps/bin/sfdocker sfdocker
 
-* Set  default container name value in your Symfony's parameters.yml/parameters.yml.dist (php-fpm container) like this:
+* Set default container to use if container is not specified in your Symfony's parameters.yml/parameters.yml.dist like this:
 
 sfdocker_default_container: myproject-php-fpm
+
+* Set default user to use if user is not specified in your Symfony's parameters.yml/parameters.yml.dist like this:
+
+sfdocker_default_user: www-data
+
+If sfdocker_default_user is not set, it fallbacks to root user which is present in all docker containers, so:
+
+./sfdocker enter & ./sfdocker enter -p would have the same effect in that case (it will login with root user).
 
 Commands inside the docker wrapper
 ==================================

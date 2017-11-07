@@ -92,9 +92,6 @@ COMPOSE="docker-compose"
 COMPOSE_FILE="$(ls docker-compose* 2> /dev/null)"
 PARAMETERS_FILE="$(ls app/config/parameters.yml 2> /dev/null)"
 CACHE_ENV="dev"
-DEFAULT_USER="www-data"
-EXEC="$COMPOSE exec --user $DEFAULT_USER"
-EXEC_T="$COMPOSE exec -T --user $DEFAULT_USER"
 SHELL_C="bash -c"
 SHELL="bash"
 ERROR_PREFIX="ERROR ::"
@@ -113,6 +110,13 @@ fi
 
 eval $(parse_yaml $PARAMETERS_FILE "yml_")
 CONTAINER=$yml_parameters__sfdocker_default_container
+DEFAULT_USER=$yml_parameters__sfdocker_default_user
+
+if [[ $DEFAULT_USER == "" ]]; then
+    DEFAULT_USER="root"
+fi
+EXEC="$COMPOSE exec --user $DEFAULT_USER"
+EXEC_T="$COMPOSE exec -T --user $DEFAULT_USER"
 
 if [[ $COMPOSE_FILE != "docker-compose.yml" ]]; then
   COMPOSE="$COMPOSE -f $COMPOSE_FILE"
