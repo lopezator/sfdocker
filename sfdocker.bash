@@ -82,16 +82,21 @@ function get_database_container {
     IFS=" "; declare -a Array=($*)
     echo "${Array[0]}"
 }
+
+command_exists () {
+    type "$1" &> /dev/null ;
+}
 # Funciones END #######################################################
 
 COMPOSE="docker-compose"
 COMPOSE_FILE="$(ls docker-compose* 2> /dev/null)"
 PARAMETERS_FILE="$(ls app/config/parameters.yml 2> /dev/null)"
 CACHE_ENV="dev"
-EXEC="$COMPOSE exec --user www-data"
-EXEC_T="$COMPOSE exec -T --user www-data"
-EXEC_PRIVILEGED="$COMPOSE exec --user root"
-BASH_C="bash -c"
+DEFAULT_USER="www-data"
+EXEC="$COMPOSE exec --user $DEFAULT_USER"
+EXEC_T="$COMPOSE exec -T --user $DEFAULT_USER"
+SHELL_C="bash -c"
+SHELL="bash"
 ERROR_PREFIX="ERROR ::"
 WARNING_PREFIX="WARNING ::"
 INFO_PREFIX="INFO ::"
@@ -149,11 +154,19 @@ if [[ $1 == "enter" ]]; then
     if [[ $# > 1 && $2 != "-p" ]]; then
       CONTAINER=$2
     fi
-    if [[ "${@: -1}" == "-p" ]]; then
-      $EXEC_PRIVILEGED $CONTAINER bash
-    else
-      $EXEC $CONTAINER bash
+    HAS_BASH=$($EXEC $CONTAINER $SHELL_C exit)
+    if [[ $HAS_BASH ]]; then
+        SHELL="sh"
     fi
+    if [[ "${@: -1}" == "-p" ]]; then
+      DEFAULT_USER="root"
+    else
+      if [[ "${@:$#-1:1}" == "-u" ]]; then
+        DEFAULT_USER=${@:$#:1}
+      fi
+    fi
+    EXEC="$COMPOSE exec --user $DEFAULT_USER"
+    $EXEC $CONTAINER $SHELL
     FOUND=1
 fi
 
@@ -171,7 +184,7 @@ fi
 
 # Symfony console handling
 if [[ $1 == "console" ]]; then
-     $EXEC $CONTAINER $BASH_C "php app/console $2 $3 $4";
+     $EXEC $CONTAINER $SHELL_C "php app/console $2 $3 $4";
      FOUND=1
 fi
 
@@ -183,7 +196,7 @@ if [[ $1 == "ccode" ]]; then
       echo "#########################################################################"
     fi
     if [[ $HOOK == 1 ]]; then
-      $EXEC_T $CONTAINER $BASH_C "php app/hooks/pre-commit.php"
+      $EXEC_T $CONTAINER $SHELL_C "php app/hooks/pre-commit.php"
     fi
     FOUND=1
 fi
@@ -194,9 +207,9 @@ if [[ $1 == "cache" ]]; then
       CACHE_ENV=$2
     fi
     if [[ $2 == "all" ]]; then
-        $EXEC $CONTAINER $BASH_C "php app/console ca:cl --env=dev;php app/console ca:cl --env=test;php app/console ca:cl --env=prod";
+        $EXEC $CONTAINER $SHELL_C "php app/console ca:cl --env=dev;php app/console ca:cl --env=test;php app/console ca:cl --env=prod";
     else
-        $EXEC $CONTAINER $BASH_C "php app/console ca:cl --env=$CACHE_ENV";
+        $EXEC $CONTAINER $SHELL_C "php app/console ca:cl --env=$CACHE_ENV";
     fi
     FOUND=1
 fi
@@ -220,24 +233,24 @@ if [[ $1 == "composer" ]]; then
         exit 1;
     fi
     if [ -f /etc/php/7.1/cli/conf.d/20-xdebug.ini ]; then
-        $EXEC_PRIVILEGED $CONTAINER $BASH_C "mv /etc/php/7.1/cli/conf.d/20-xdebug.ini /etc/php/7.1/cli/conf.d/20-xdebug.ini.bak";
+        $COMPOSE exec --user root $CONTAINER $SHELL_C "mv /etc/php/7.1/cli/conf.d/20-xdebug.ini /etc/php/7.1/cli/conf.d/20-xdebug.ini.bak";
     fi
-    $EXEC $CONTAINER $BASH_C "$1 $2 $3 $4";
+    $EXEC $CONTAINER $SHELL_C "$1 $2 $3 $4";
     if [ -f /etc/php/7.1/cli/conf.d/20-xdebug.ini.bak ]; then
-        $EXEC_PRIVILEGED $CONTAINER $BASH_C "mv /etc/php/7.1/cli/conf.d/20-xdebug.ini.bak /etc/php/7.1/cli/conf.d/20-xdebug.ini";
+        $COMPOSE exec --user root $CONTAINER $SHELL_C "mv /etc/php/7.1/cli/conf.d/20-xdebug.ini.bak /etc/php/7.1/cli/conf.d/20-xdebug.ini";
     fi
     FOUND=1
 fi
 
 # Gulp handling
 if [[ $1 == "gulp" ]]; then
-    $EXEC $CONTAINER $BASH_C "$1 $2 $3 $4";
+    $EXEC $CONTAINER $SHELL_C "$1 $2 $3 $4";
     FOUND=1;
 fi
 
 # Bower handling
 if [[ $1 == "bower" ]]; then
-    $EXEC $CONTAINER $BASH_C "$1 $2 $3 $4";
+    $EXEC $CONTAINER $SHELL_C "$1 $2 $3 $4";
     FOUND=1;
 fi
 

@@ -43,7 +43,7 @@ Commands inside the docker wrapper
 * Enter in docker (default value: <sfdocker_default_container>)
 <-p> optional modifier starts the container as privileged user (root):
 
-./sfdocker enter <container> <-p>
+./sfdocker enter <container> <-p/-u user>
 
 * Show running containers:
 
