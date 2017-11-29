@@ -139,19 +139,18 @@ if [[ $1 == "start" ]]; then
     if [[ $# > 1 && $2 == "-b" ]]; then
       $COMPOSE up -d --build
     else
-      $COMPOSE up -d
+      $COMPOSE start
     fi
     FOUND=1
 fi
 
 if [[ $1 == "stop" ]]; then
-    $COMPOSE down
+    $COMPOSE stop
     FOUND=1
 fi
 
 if [[ $1 == "restart" ]]; then
-    $COMPOSE down
-    $COMPOSE up -d
+    $COMPOSE restart
     FOUND=1
 fi
 
@@ -325,6 +324,15 @@ if [[ $1 == "--help" ]]; then
     echo "6.- Gulp: ./sfdocker gulp <args>";
     echo "7.- Bower: ./sfdocker bower <args>";
     echo "8.- Mysql: ./sfdocker mysql <dump/restore/clear>";
+    echo "###################################################";
+    FOUND=1
+fi
+
+# Help handling
+if [[ $1 == "----version" ]]; then
+    echo "###################################################";
+    echo "SFDOCKER:";
+    cat  package.json;
     echo "###################################################";
     FOUND=1
 fi
