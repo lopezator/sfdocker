@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Funciones ##########################################################
+# Functions ##########################################################
 parse_yaml() {
    local prefix=$2
    local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
@@ -86,11 +86,16 @@ function get_database_container {
 command_exists () {
     type "$1" &> /dev/null ;
 }
-# Funciones END #######################################################
+# Functions END #######################################################
 
 COMPOSE="docker-compose"
 COMPOSE_FILE="$(ls docker-compose* 2> /dev/null)"
-PARAMETERS_FILE="$(ls app/config/parameters.yml 2> /dev/null)"
+SFDOCKER_FOLDER="app/deps/sfdocker"
+CONFIG_FILE_FOLDER="app/deps/conf"
+CONFIG_FILE_PATH="$CONFIG_FILE_FOLDER/sfdocker.conf"
+VERSION_FILE_PATH="$SFDOCKER_FOLDER/package.json"
+README_FILE_PATH="$SFDOCKER_FOLDER/README.md"
+CONFIG_FILE="$(ls $CONFIG_FILE_PATH 2> /dev/null)"
 CACHE_ENV="dev"
 SHELL_C="bash -c"
 SHELL="bash"
@@ -100,38 +105,77 @@ INFO_PREFIX="INFO ::"
 HOOK=1
 FOUND=0
 
-
-if [[ $PARAMETERS_FILE == "" ]]; then
-  PARAMETERS_FILE="$(ls app/config/parameters.yml.dist 2> /dev/null)"
-  if [[ $PARAMETERS_FILE == "" ]]; then
-    echo "$ERROR_PREFIX ¡WTF! ¡No encuentro ningun parameters.yml ni parameters.yml.dist en la carpeta \"app/config\"!";
-    exit 1;
-  fi
+# Sfdocker config handling
+if [[ $1 == "config" ]]; then
+    if [[ ! -z $CONFIG_FILE ]]; then
+        rm -rf $CONFIG_FILE_PATH
+        CONFIG_FILE=""
+    fi
+    FOUND=1
 fi
 
-eval $(parse_yaml $PARAMETERS_FILE "yml_")
-CONTAINER=$yml_parameters__sfdocker_default_container
-DEFAULT_USER=$yml_parameters__sfdocker_default_user
+if [[ $CONFIG_FILE == "" ]]; then
+    echo "$WARNING_PREFIX ¡No encuentro el fichero sfdocker.conf en la carpeta \"$CONFIG_FILE_PATH\"!";
+    read -p "Introduce el nombre del contenedor por defecto y confirma con [ENTER] (ej: my-container-php-fpm): " sfdocker_default_container
 
-if [[ $DEFAULT_USER == "" ]]; then
-    DEFAULT_USER="root"
+    if [[ -z "$sfdocker_default_container" ]]; then
+       echo "$ERROR_PREFIX ¡Debes introducir el nombre del contenedor por defecto tal y como está definido en el docker-compose.yml!";
+       exit 1
+    else
+       read -p "Introduce el nombre del usuario por defecto y confirma con [ENTER]: (ej: www-data): " sfdocker_default_user
+       if [[ -z "$sfdocker_default_container" ]]; then
+        echo "$ERROR_PREFIX ¡Debes introducir el nombre del usuario por defecto que vayas a utilizar en los contenedores!";
+        exit 1
+       else
+        mkdir -p $CONFIG_FILE_FOLDER
+        echo "sfdocker_default_container: $sfdocker_default_container" >> $CONFIG_FILE_PATH
+        echo "sfdocker_default_user: $sfdocker_default_user" >> $CONFIG_FILE_PATH
+       fi
+    fi
+    CONTAINER=$sfdocker_default_container
+    DEFAULT_USER=$sfdocker_default_user
+else
+    i=0
+    while IFS=" ," read -r key value;
+    do
+        if [[ $i == 0 ]]; then
+            CONTAINER=$value
+        elif [[ $i == 1 ]]; then
+            DEFAULT_USER=$value
+        fi
+        i=$[$i+1];
+    done < $CONFIG_FILE_PATH
 fi
+
 EXEC="$COMPOSE exec --user $DEFAULT_USER"
 EXEC_T="$COMPOSE exec -T --user $DEFAULT_USER"
+
+# Sfdocker handling
+if [[ $1 == "self-update" ]]; then
+    rm -rf app/deps/bin && rm -rf app/deps/sfdocker && cd app && bpkg install lopezator/sfdocker
+    FOUND=1
+    exit 1;
+fi
+
+if [[ $1 == "help" ]]; then
+    cat  $README_FILE_PATH
+    printf "\n"
+    FOUND=1
+fi
+
+if [[ $1 == "version" ]]; then
+    cat  $VERSION_FILE_PATH
+    printf "\n"
+    FOUND=1
+fi
 
 if [[ $COMPOSE_FILE != "docker-compose.yml" ]]; then
   COMPOSE="$COMPOSE -f $COMPOSE_FILE"
 fi
 
 if [[ $# < 1 ]]; then
-    echo "$ERROR_PREFIX Dame un argumento madafaka! (start/stop/restart/enter/logs/console/ccode/cache/destroy/composer/gulp/ps/mysql/self-update)";
+    echo "$ERROR_PREFIX Dame un argumento madafaka!";
     exit 1;
-fi
-
-# Sfdocker handling
-if [[ $1 == "self-update" ]]; then
-    rm -rf app/deps && cd app && bpkg install lopezator/sfdocker
-    FOUND=1
 fi
 
 # Docker handling
@@ -184,6 +228,11 @@ if [[ $1 == "logs" ]]; then
       $COMPOSE logs
     fi
     FOUND=1
+fi
+
+if [[ $1 == "ps" ]]; then
+    $COMPOSE ps;
+    FOUND=1;
 fi
 
 # Symfony console handling
@@ -258,87 +307,64 @@ if [[ $1 == "bower" ]]; then
     FOUND=1;
 fi
 
-if [[ $1 == "ps" ]]; then
-    $COMPOSE ps;
-    FOUND=1;
-fi
-
+# MySQL handling
 if [[ $1 == "mysql" ]]; then
-     if [[ $# < 2 ]]; then
+    if [[ $# < 2 ]]; then
         echo "$ERROR_PREFIX ¡Necesito un segundo un argumento madafaka! (dump/restore)"
         exit 1
-     fi
-     FOUND=1
-     NOW_DATE=`date +%d-%m-%Y_%H-%M-%S`
-     DATABASE_CONTAINER=$(get_database_container)
+    fi
 
-     DATABASE_HOST=$yml_parameters__database_host
-     DATABASE_PORT=$yml_parameters__database_port
-     DATABASE_NAME=$yml_parameters__database_name
-     DATABASE_USER=$yml_parameters__database_user
-     DATABASE_PASSWORD=$yml_parameters__database_password
+    PARAMETERS_FILE="$(ls app/config/parameters.yml 2> /dev/null)"
+    if [[ $PARAMETERS_FILE == "" ]]; then
+        PARAMETERS_FILE="$(ls app/config/parameters.yml.dist 2> /dev/null)"
+        if [[ $PARAMETERS_FILE == "" ]]; then
+            echo "$ERROR_PREFIX ¡WTF! ¡No encuentro ningun parameters.yml ni parameters.yml.dist en la carpeta \"app/config\"!";
+            exit 1;
+        fi
+    fi
+    eval $(parse_yaml $PARAMETERS_FILE "yml_")
 
-     DUMP_DIRECTORY="data/dumps/"
-     DUMP_NAME=$(echo ${DATABASE_NAME}_${NOW_DATE})".sql"
-     DUMP_FILE=$DUMP_DIRECTORY$DUMP_NAME
-     DUMP_INFO="$INFO_PREFIX Exportando la base de datos $DATABASE_NAME al fichero: $DUMP_FILE"
+    FOUND=1
+    NOW_DATE=`date +%d-%m-%Y_%H-%M-%S`
+    DATABASE_CONTAINER=$(get_database_container)
+    DATABASE_HOST=$yml_parameters__database_host
+    DATABASE_PORT=$yml_parameters__database_port
+    DATABASE_NAME=$yml_parameters__database_name
+    DATABASE_USER=$yml_parameters__database_user
+    DATABASE_PASSWORD=$yml_parameters__database_password
+    DUMP_DIRECTORY="data/dumps/"
+    DUMP_NAME=$(echo ${DATABASE_NAME}_${NOW_DATE})".sql"
+    DUMP_FILE=$DUMP_DIRECTORY$DUMP_NAME
+    DUMP_INFO="$INFO_PREFIX Exportando la base de datos $DATABASE_NAME al fichero: $DUMP_FILE"
+    RESTORE_FILE=$(get_latest_dump)
+    RESTORE_PATH=$DUMP_DIRECTORY$RESTORE_FILE
+    DUMP_CMD="docker exec -i $DATABASE_CONTAINER mysqldump -h $DATABASE_HOST -P $DATABASE_PORT -u $DATABASE_USER -p$DATABASE_PASSWORD $DATABASE_NAME > $DUMP_FILE 2>/dev/null"
+    RESTORE_CMD="docker exec -i $DATABASE_CONTAINER mysql -u$DATABASE_USER -p$DATABASE_PASSWORD $DATABASE_NAME < $RESTORE_PATH 2>/dev/null"
+    RESTORE_INFO="$INFO_PREFIX Importando la base de datos $DATABASE_NAME al fichero: $RESTORE_PATH"
 
-     RESTORE_FILE=$(get_latest_dump)
-     RESTORE_PATH=$DUMP_DIRECTORY$RESTORE_FILE
-
-     DUMP_CMD="docker exec -i $DATABASE_CONTAINER mysqldump -h $DATABASE_HOST -P $DATABASE_PORT -u $DATABASE_USER -p$DATABASE_PASSWORD $DATABASE_NAME > $DUMP_FILE 2>/dev/null"
-
-     if [[ -z "$RESTORE_FILE" && $2 == "restore" ]]; then
+    if [[ -z "$RESTORE_FILE" && $2 == "restore" ]]; then
         echo "¡No existe ningun dump en la carpeta $DUMP_DIRECTORY!"
         exit 1;
-     fi
+    fi
 
-     RESTORE_CMD="docker exec -i $DATABASE_CONTAINER mysql -u$DATABASE_USER -p$DATABASE_PASSWORD $DATABASE_NAME < $RESTORE_PATH 2>/dev/null"
-     RESTORE_INFO="$INFO_PREFIX Importando la base de datos $DATABASE_NAME al fichero: $RESTORE_PATH"
-
-     if [[ $2 == "restore" ]]; then
+    if [[ $2 == "restore" ]]; then
         if confirm "Te dispones a restaurar la última versión de la base de datos: $RESTORE_FILE ¿Estás seguro? [Y/n] "; then
             eval $RESTORE_CMD
             printf "\n¡Restauración efectuda correctamente!\n\n"
         fi
-     elif [[ $2 == "dump" ]]; then
+    elif [[ $2 == "dump" ]]; then
         echo "$DUMP_FILE"
         eval $DUMP_CMD
-     elif [[ $2 == "clear" ]]; then
+    elif [[ $2 == "clear" ]]; then
         cd $DUMP_DIRECTORY && find . -type f ! -name $RESTORE_FILE -delete
         printf "\n¡Limpieza de dumps efectuda correctamente!\n\n"
-     else
+        else
         FOUND=0;
-     fi
-fi
-
-# Help handling
-if [[ $1 == "--help" ]]; then
-    echo "###################################################";
-    echo "AYUDA DE SFDOCKER:";
-    echo "1.- Contenedores: ./sfdocker <start/stop/restart/destroy/enter/ps/logs>";
-    echo "2.- Consola de symfony: ./sfdocker console <args>";
-    echo "3.- Caché de symfony: ./sfdocker cache <dev/prod/all>";
-    echo "4.- Check de código pre-commit: ./sfdocker ccode";
-    echo "5.- Composer: ./sfdocker composer <args>";
-    echo "6.- Gulp: ./sfdocker gulp <args>";
-    echo "7.- Bower: ./sfdocker bower <args>";
-    echo "8.- Mysql: ./sfdocker mysql <dump/restore/clear>";
-    echo "###################################################";
-    FOUND=1
-fi
-
-# Help handling
-if [[ $1 == "----version" ]]; then
-    echo "###################################################";
-    echo "SFDOCKER:";
-    cat  package.json;
-    echo "###################################################";
-    FOUND=1
+    fi
 fi
 
 # Error handling
 if [[ $FOUND == 0 ]]; then
   echo "$ERROR_PREFIX ¿Y qué tal si introduces un comando que exista cabeza de chorlit@?";
-  echo "./sfdocker --help para ayuda.";
+  echo "./sfdocker help para ayuda.";
 fi

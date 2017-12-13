@@ -1,30 +1,31 @@
 # sfdocker
 
-* Install bpkg:
+Installation
+============
+
+Install bpkg:
+-----------------
 
 sudo -s<br />
 curl -Lo- "https://raw.githubusercontent.com/bpkg/bpkg/master/setup.sh" | bash
 
-* Install sfdocker package for the first time (if you are updating, goto point 3):
+Install sfdocker package for the first time (if you are updating, goto point 5):
+--------------------------------------------------------------------------------
 
 cd app<br />
 bpkg install lopezator/sfdocker
 
-* Link library within composer.json (post-install && post-update):
+Link library:
+-------------
 
 ln -s app/deps/bin/sfdocker sfdocker
 
-* Set default container to use if container is not specified in your Symfony's parameters.yml/parameters.yml.dist like this:
+First run:
+----------
 
-sfdocker_default_container: myproject-php-fpm
+The first time you run ./sfdocker (with whatever arguments) if it doesn't detect the sfdocker.conf it will ask you to provide two parameters, default user and default container.<br/>
 
-* Set default user to use if user is not specified in your Symfony's parameters.yml/parameters.yml.dist like this:
-
-sfdocker_default_user: www-data
-
-If sfdocker_default_user is not set, it fallbacks to root user which is present in all docker containers, so:
-
-./sfdocker enter & ./sfdocker enter -p would have the same effect in that case (it will login with root user).
+Note: if you provided wrong values and want to fix them, run: ./sfdocker config
 
 Commands inside the docker wrapper
 ==================================
@@ -32,60 +33,104 @@ Commands inside the docker wrapper
 1.- Docker containers handling:
 ------------------------------
 
-* Start docker:
+#### Start docker:
 
 ./sfdocker start
 
-* Stop docker:
+#### Stop docker:
 
 ./sfdocker stop
 
-* Restart docker:
+#### Restart docker:
 
 ./sfdocker restart
 
-* Destroy docker:
+#### Build docker:
+
+./sfdocker start -b
+
+#### Destroy docker:
 
 ./sfdocker destroy
 
-* Enter in docker (default value: <sfdocker_default_container>)
-<-p> optional modifier starts the container as privileged user (root):
+#### Enter in docker (default value: <sfdocker_default_container>) <-p> optional modifier starts the container as privileged user (root):
 
 ./sfdocker enter <container> <-p/-u user>
 
-* Show running containers:
+#### Show running containers:
 
 ./sfdocker ps
 
-* Docker logs (default value: <sfdocker_default_container>):
+#### Docker logs (default value: <sfdocker_default_container>):
 
 ./sfdocker logs <container/all>
 
 2.- Symfony handling & code tools:
 ----------------------------------
 
-* Execute symfony console:
+#### Execute symfony console:
 
 ./sfdocker console <args>
 
-* Clear symfony cache (default value: dev):
+#### Clear symfony cache (default value: dev):
 
 ./sfdocker cache <dev/prod/test/all>
 
-* Check code compliance:
+#### Check code compliance:
 
 ./sfdocker ccode
 
-* Run composer:
+Note: Only checks code added to git staging area (git add file).
+
+#### Run composer:
 
 ./sfdocker composer <args>
 
-(Starts composer inside the container, so you can send any other composer parameter 
-, if it's wrong, composer itself will return the error).
+Note: Starts composer inside the container, so you can send any other composer parameter, if it's wrong, composer itself will return the error.
 
-3.- Keep sfdocker up to date:
+3.- Other tools handling (if installed):
+----------------------------------------
+
+#### Execute gulp:
+
+./sfdocker gulp <args>
+
+Note: Starts gulp inside the container, so you can send any other gulp parameter, if it's wrong, gulp itself will return the error.
+
+#### Execute bower:
+
+./sfdocker bower <args>
+
+Note: Starts bower inside the container, so you can send any other bower parameter, if it's wrong, bower itself will return the error.
+
+4.- Mysql handling:
+------------------
+
+#### Dump your database to "data/dumps" folder:
+
+./sfdocker mysql dump
+
+#### Restore your database:
+
+./sfdocker mysql restore
+
+Note: Restores the latest file by modified date inside the "data/dumps" folder.
+
+#### Clear your dumps folder:
+
+./sfdocker mysql clear
+
+5.- Keep sfdocker up to date:
 -----------------------------
 
-* Update sfdocker:
+#### Update sfdocker:
 
 ./sfdocker self-update
+
+6.- Help / Command list:
+------------------------
+
+#### Ask for this same page within sfdocker:
+
+./sfdocker help
+
