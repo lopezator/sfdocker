@@ -33,9 +33,13 @@ Commands inside the docker wrapper
 1.- Docker containers handling:
 ------------------------------
 
-#### Start docker:
+#### Start docker containers:
 
 ./sfdocker start
+
+#### Create docker containers:
+
+./sfdocker create
 
 #### Stop docker:
 
@@ -47,7 +51,7 @@ Commands inside the docker wrapper
 
 #### Build docker:
 
-./sfdocker start -b
+./sfdocker build
 
 #### Destroy docker:
 

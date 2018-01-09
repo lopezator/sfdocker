@@ -180,12 +180,16 @@ fi
 
 # Docker handling
 if [[ $1 == "start" ]]; then
-    if [[ $# > 1 && $2 == "-b" ]]; then
-      $COMPOSE up -d --build
-    else
-      $COMPOSE start
-    fi
+    $COMPOSE start
     FOUND=1
+fi
+
+if [[ $1 == "build" ]]; then
+    $COMPOSE up -d --build
+fi
+
+if [[ $1 == "create" ]]; then
+    $COMPOSE up -d
 fi
 
 if [[ $1 == "stop" ]]; then
