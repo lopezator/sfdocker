@@ -186,10 +186,12 @@ fi
 
 if [[ $1 == "build" ]]; then
     $COMPOSE up -d --build
+    FOUND=1
 fi
 
 if [[ $1 == "create" ]]; then
     $COMPOSE up -d
+    FOUND=1
 fi
 
 if [[ $1 == "stop" ]]; then
