@@ -115,25 +115,23 @@ if [[ $1 == "config" ]]; then
 fi
 
 if [[ $CONFIG_FILE == "" ]]; then
-    echo "$WARNING_PREFIX ¡No encuentro el fichero sfdocker.conf en la carpeta \"$CONFIG_FILE_PATH\"!";
-    read -p "Introduce el nombre del contenedor por defecto y confirma con [ENTER] (ej: my-container-php-fpm): " sfdocker_default_container
+    sfdocker_default_container=""
+    while [[ $sfdocker_default_container = "" ]]; do
+      read -p "Introduce el nombre del contenedor por defecto y confirma con [ENTER] (ejemplo: my-container-php-fpm): " sfdocker_default_container
+    done
+    sfdocker_default_user=""
+    while [[ $sfdocker_default_user = "" ]]; do
+      read -p "Introduce el nombre del usuario por defecto y confirma con [ENTER]: (ejemplo: www-data): " sfdocker_default_user
+    done
+    mkdir -p $CONFIG_FILE_FOLDER
+    echo "sfdocker_default_container: $sfdocker_default_container" >> $CONFIG_FILE_PATH
+    echo "sfdocker_default_user: $sfdocker_default_user" >> $CONFIG_FILE_PATH
 
-    if [[ -z "$sfdocker_default_container" ]]; then
-       echo "$ERROR_PREFIX ¡Debes introducir el nombre del contenedor por defecto tal y como está definido en el docker-compose.yml!";
-       exit 1
-    else
-       read -p "Introduce el nombre del usuario por defecto y confirma con [ENTER]: (ej: www-data): " sfdocker_default_user
-       if [[ -z "$sfdocker_default_container" ]]; then
-        echo "$ERROR_PREFIX ¡Debes introducir el nombre del usuario por defecto que vayas a utilizar en los contenedores!";
-        exit 1
-       else
-        mkdir -p $CONFIG_FILE_FOLDER
-        echo "sfdocker_default_container: $sfdocker_default_container" >> $CONFIG_FILE_PATH
-        echo "sfdocker_default_user: $sfdocker_default_user" >> $CONFIG_FILE_PATH
-       fi
-    fi
     CONTAINER=$sfdocker_default_container
     DEFAULT_USER=$sfdocker_default_user
+
+    echo ""
+    echo "¡Sfdocker configurado! Si necesitas modificar los valores, ejecuta: ./sfdocker config"
 else
     i=0
     while IFS=" ," read -r key value;
@@ -152,9 +150,14 @@ EXEC_T="$COMPOSE exec -T --user $DEFAULT_USER"
 
 # Sfdocker handling
 if [[ $1 == "self-update" ]]; then
-    rm -rf app/deps/bin && rm -rf app/deps/sfdocker && cd app && bpkg install lopezator/sfdocker
+    SUDO=''
+    if (( $EUID != 0 )); then
+        SUDO='sudo'
+    fi
+    $SUDO $1
+
+    bpkg install lopezator/sfdocker && cp -rf deps/bin/sfdocker /usr/bin/sfdocker && rm -rf deps/
     FOUND=1
-    exit 1;
 fi
 
 if [[ $1 == "help" ]]; then

@@ -69,7 +69,18 @@ Commands inside the docker wrapper
 
 ./sfdocker logs <container/all>
 
-2.- Symfony handling & code tools:
+2.- Sfdocker handling:
+------------------------------
+
+#### Configure sfdocker
+
+./sfdocker config
+
+#### Update sfdocker:
+
+./sfdocker self-update
+
+3.- Symfony handling & code tools:
 ----------------------------------
 
 #### Execute symfony console:
@@ -92,7 +103,7 @@ Note: Only checks code added to git staging area (git add file).
 
 Note: Starts composer inside the container, so you can send any other composer parameter, if it's wrong, composer itself will return the error.
 
-3.- Other tools handling (if installed):
+4.- Other tools handling (if installed):
 ----------------------------------------
 
 #### Execute gulp:
@@ -107,7 +118,7 @@ Note: Starts gulp inside the container, so you can send any other gulp parameter
 
 Note: Starts bower inside the container, so you can send any other bower parameter, if it's wrong, bower itself will return the error.
 
-4.- Mysql handling:
+5.- Mysql handling:
 ------------------
 
 #### Dump your database to "data/dumps" folder:
@@ -123,13 +134,6 @@ Note: Restores the latest file by modified date inside the "data/dumps" folder.
 #### Clear your dumps folder:
 
 ./sfdocker mysql clear
-
-5.- Keep sfdocker up to date:
------------------------------
-
-#### Update sfdocker:
-
-./sfdocker self-update
 
 6.- Help / Command list:
 ------------------------

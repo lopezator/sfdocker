@@ -1,6 +1,16 @@
 CHANGELOG
 =========
 
+#### Changes in version 1.0.2:
+
+* Changes to ./sfdocker config, not it doesn't allow blank values.
+* Changes in README.md.
+
+#### Changes in version 1.0.1:
+
+* Renamed "./sfdocker start -b" to "./sfdocker build"
+* Added "./sfdocker create" command to decouple container creation from building process.
+
 #### Changes in version 1.0.0:
 
 * Added sfdocker.conf file for default-container and default-user configuration.
@@ -11,7 +21,5 @@ CHANGELOG
 * Documentation improvements, added docs for mysql, gulp, bower. Corrections.
 
 
-#### Changes in version 1.0.1:
 
-* Renamed "./sfdocker start -b" to "./sfdocker build"
-* Added "./sfdocker create" command to decouple container creation from building process.
+
