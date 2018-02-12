@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+#### Changes in version 1.0.3:
+
+* Fixed bug in multi-project shared services. Removed the COMPOSE-FILE directive.
+
 #### Changes in version 1.0.2:
 
 * Changes to ./sfdocker config, not it doesn't allow blank values.
