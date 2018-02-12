@@ -89,7 +89,6 @@ command_exists () {
 # Functions END #######################################################
 
 COMPOSE="docker-compose"
-COMPOSE_FILE="$(ls docker-compose* 2> /dev/null)"
 SFDOCKER_FOLDER="app/deps/sfdocker"
 CONFIG_FILE_FOLDER="app/deps/conf"
 CONFIG_FILE_PATH="$CONFIG_FILE_FOLDER/sfdocker.conf"
@@ -170,10 +169,6 @@ if [[ $1 == "version" ]]; then
     cat  $VERSION_FILE_PATH
     printf "\n"
     FOUND=1
-fi
-
-if [[ $COMPOSE_FILE != "docker-compose.yml" ]]; then
-  COMPOSE="$COMPOSE -f $COMPOSE_FILE"
 fi
 
 if [[ $# < 1 ]]; then
