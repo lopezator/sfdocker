@@ -117,12 +117,15 @@ fi
 if [[ $CONFIG_FILE == "" ]]; then
     sfdocker_symfony_version=""
     while [[ $sfdocker_symfony_version = "" ]]; do
-      options=("Symfony 2/3" "Symfony 4")
+      options=("Symfony 2" "Symfony 3" "Symfony 4")
       echo "Elige la versión de Symfony de tu aplicación:"
       select opt in "${options[@]}"; do
         case $REPLY in
             1)
-                sfdocker_symfony_version="2/3";
+                sfdocker_symfony_version="2";
+                break ;;
+            3)
+                sfdocker_symfony_version="3";
                 break ;;
             2)
                 sfdocker_symfony_version="4";
@@ -167,7 +170,7 @@ else
     done < $CONFIG_FILE_PATH
 fi
 
-if [[ $SYMFONY_VERSION == 4 ]]; then
+if [[ $SYMFONY_VERSION == 4 ] || [ $SYMFONY_VERSION == 3 ]]; then
     CONSOLE_PATH="bin/console"
 fi
 
