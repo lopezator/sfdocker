@@ -12,13 +12,12 @@ curl -Lo- "https://raw.githubusercontent.com/bpkg/bpkg/master/setup.sh" | bash
 Install sfdocker package for the first time (if you are updating, goto point 5):
 --------------------------------------------------------------------------------
 
-cd app<br />
 bpkg install lopezator/sfdocker
 
 Link library:
 -------------
 
-ln -s app/deps/bin/sfdocker sfdocker
+ln -s deps/bin/sfdocker sfdocker
 
 First run:
 ----------

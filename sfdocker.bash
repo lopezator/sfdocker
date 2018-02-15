@@ -89,8 +89,8 @@ command_exists () {
 # Functions END #######################################################
 
 COMPOSE="docker-compose"
-SFDOCKER_FOLDER="app/deps/sfdocker"
-CONFIG_FILE_FOLDER="app/deps/conf"
+SFDOCKER_FOLDER="deps/sfdocker"
+CONFIG_FILE_FOLDER="deps/conf"
 CONFIG_FILE_PATH="$CONFIG_FILE_FOLDER/sfdocker.conf"
 VERSION_FILE_PATH="$SFDOCKER_FOLDER/package.json"
 README_FILE_PATH="$SFDOCKER_FOLDER/README.md"
@@ -241,7 +241,7 @@ fi
 
 # Symfony console handling
 if [[ $1 == "console" ]]; then
-     $EXEC $CONTAINER $SHELL_C "php app/console $2 $3 $4";
+     $EXEC $CONTAINER $SHELL_C "php bin/console $2 $3 $4";
      FOUND=1
 fi
 
@@ -264,9 +264,9 @@ if [[ $1 == "cache" ]]; then
       CACHE_ENV=$2
     fi
     if [[ $2 == "all" ]]; then
-        $EXEC $CONTAINER $SHELL_C "php app/console ca:cl --env=dev;php app/console ca:cl --env=test;php app/console ca:cl --env=prod";
+        $EXEC $CONTAINER $SHELL_C "php bin/console ca:cl --env=dev;php bin/console ca:cl --env=test;php bin/console ca:cl --env=prod";
     else
-        $EXEC $CONTAINER $SHELL_C "php app/console ca:cl --env=$CACHE_ENV";
+        $EXEC $CONTAINER $SHELL_C "php bin/console ca:cl --env=$CACHE_ENV";
     fi
     FOUND=1
 fi
