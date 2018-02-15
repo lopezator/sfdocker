@@ -89,6 +89,7 @@ command_exists () {
 # Functions END #######################################################
 
 COMPOSE="docker-compose"
+CONSOLE_PATH="app/console"
 SFDOCKER_FOLDER="app/deps/sfdocker"
 CONFIG_FILE_FOLDER="app/deps/conf"
 CONFIG_FILE_PATH="$CONFIG_FILE_FOLDER/sfdocker.conf"
@@ -114,6 +115,24 @@ if [[ $1 == "config" ]]; then
 fi
 
 if [[ $CONFIG_FILE == "" ]]; then
+    sfdocker_symfony_version=""
+    while [[ $sfdocker_symfony_version = "" ]]; do
+      options=("Symfony 2/3" "Symfony 4")
+      echo "Elige la versión de Symfony de tu aplicación:"
+      select opt in "${options[@]}"; do
+        case $REPLY in
+            1)
+                sfdocker_symfony_version="2/3";
+                break ;;
+            2)
+                sfdocker_symfony_version="4";
+                break ;;
+            *)
+                echo "No has seleccionado correctamente. Venga, que no es tan dificil..."
+                ;;
+        esac
+      done
+    done
     sfdocker_default_container=""
     while [[ $sfdocker_default_container = "" ]]; do
       read -p "Introduce el nombre del contenedor por defecto y confirma con [ENTER] (ejemplo: my-container-php-fpm): " sfdocker_default_container
@@ -123,11 +142,23 @@ if [[ $CONFIG_FILE == "" ]]; then
       read -p "Introduce el nombre del usuario por defecto y confirma con [ENTER]: (ejemplo: www-data): " sfdocker_default_user
     done
     mkdir -p $CONFIG_FILE_FOLDER
+    echo "sfdocker_symfony_version: $sfdocker_symfony_version" >> $CONFIG_FILE_PATH
     echo "sfdocker_default_container: $sfdocker_default_container" >> $CONFIG_FILE_PATH
     echo "sfdocker_default_user: $sfdocker_default_user" >> $CONFIG_FILE_PATH
 
+    SYMFONY_VERSION=$sfdocker_symfony_version
     CONTAINER=$sfdocker_default_container
     DEFAULT_USER=$sfdocker_default_user
+
+    if [[ $SYMFONY_VERSION == 4 ]]; then
+        CONSOLE_PATH="bin/console"
+        SFDOCKER_FOLDER="deps/sfdocker"
+        CONFIG_FILE_FOLDER="deps/conf"
+        CONFIG_FILE_PATH="$CONFIG_FILE_FOLDER/sfdocker.conf"
+        VERSION_FILE_PATH="$SFDOCKER_FOLDER/package.json"
+        README_FILE_PATH="$SFDOCKER_FOLDER/README.md"
+        CONFIG_FILE="$(ls $CONFIG_FILE_PATH 2> /dev/null)"
+    fi
 
     echo ""
     echo "¡Sfdocker configurado! Si necesitas modificar los valores, ejecuta: ./sfdocker config"
@@ -136,8 +167,10 @@ else
     while IFS=" ," read -r key value;
     do
         if [[ $i == 0 ]]; then
-            CONTAINER=$value
+            SYMFONY_VERSION=$value
         elif [[ $i == 1 ]]; then
+            CONTAINER=$value
+        elif [[ $i == 2 ]]; then
             DEFAULT_USER=$value
         fi
         i=$[$i+1];
@@ -241,7 +274,7 @@ fi
 
 # Symfony console handling
 if [[ $1 == "console" ]]; then
-     $EXEC $CONTAINER $SHELL_C "php app/console $2 $3 $4";
+     $EXEC $CONTAINER $SHELL_C "php $CONSOLE_PATH $2 $3 $4";
      FOUND=1
 fi
 
@@ -264,9 +297,9 @@ if [[ $1 == "cache" ]]; then
       CACHE_ENV=$2
     fi
     if [[ $2 == "all" ]]; then
-        $EXEC $CONTAINER $SHELL_C "php app/console ca:cl --env=dev;php app/console ca:cl --env=test;php app/console ca:cl --env=prod";
+        $EXEC $CONTAINER $SHELL_C "php $CONSOLE_PATH ca:cl --env=dev;php $CONSOLE_PATH ca:cl --env=test;php $CONSOLE_PATH ca:cl --env=prod";
     else
-        $EXEC $CONTAINER $SHELL_C "php app/console ca:cl --env=$CACHE_ENV";
+        $EXEC $CONTAINER $SHELL_C "php $CONSOLE_PATH ca:cl --env=$CACHE_ENV";
     fi
     FOUND=1
 fi
