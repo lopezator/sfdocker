@@ -1,4 +1,4 @@
-# sfdocker
+# sfdocker (Symfony 4)
 
 Installation
 ============
