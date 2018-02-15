@@ -22,21 +22,17 @@ $ bpkg install lopezator/sfdocker
 
 Symfony 4:
 ```
+$ mkdir app
+$ cd app
 $ bpkg install lopezator/sfdocker
 ```
 
 Link library:
 -------------
-Symfony 2/3:
 ```
+$ cd ..
 $ ln -s app/deps/bin/sfdocker sfdocker
 ```
-
-Symfony 4:
-```
-$ ln -s deps/bin/sfdocker sfdocker
-```
-
 
 First run:
 ----------

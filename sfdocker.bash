@@ -150,20 +150,6 @@ if [[ $CONFIG_FILE == "" ]]; then
     CONTAINER=$sfdocker_default_container
     DEFAULT_USER=$sfdocker_default_user
 
-    if [[ $SYMFONY_VERSION == 4 ]]; then
-        CONSOLE_PATH="bin/console"
-        SFDOCKER_FOLDER="deps/sfdocker"
-        CONFIG_FILE_FOLDER="deps/conf"
-        CONFIG_FILE_PATH="$CONFIG_FILE_FOLDER/sfdocker.conf"
-        VERSION_FILE_PATH="$SFDOCKER_FOLDER/package.json"
-        README_FILE_PATH="$SFDOCKER_FOLDER/README.md"
-        CONFIG_FILE="$(ls $CONFIG_FILE_PATH 2> /dev/null)"
-
-        mkdir -p $CONFIG_FILE_FOLDER
-        mv app/deps/conf/* $CONFIG_FILE_FOLDER
-        rm -rf app
-    fi
-
     echo ""
     echo "¡Sfdocker configurado! Si necesitas modificar los valores, ejecuta: ./sfdocker config"
 else
@@ -179,6 +165,10 @@ else
         fi
         i=$[$i+1];
     done < $CONFIG_FILE_PATH
+fi
+
+if [[ $SYMFONY_VERSION == 4 ]]; then
+    CONSOLE_PATH="bin/console"
 fi
 
 EXEC="$COMPOSE exec --user $DEFAULT_USER"
