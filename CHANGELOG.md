@@ -3,7 +3,7 @@ CHANGELOG
 
 #### Changes in version 2.0.0:
 
-* Added support for Symfony 4
+* Added support for Symfony 3.* && Symfony 4.*
 
 #### Changes in version 1.0.3:
 
