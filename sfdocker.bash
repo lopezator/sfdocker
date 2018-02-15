@@ -158,6 +158,10 @@ if [[ $CONFIG_FILE == "" ]]; then
         VERSION_FILE_PATH="$SFDOCKER_FOLDER/package.json"
         README_FILE_PATH="$SFDOCKER_FOLDER/README.md"
         CONFIG_FILE="$(ls $CONFIG_FILE_PATH 2> /dev/null)"
+
+        mkdir -p $CONFIG_FILE_FOLDER
+        mv app/deps/conf/* $CONFIG_FILE_FOLDER
+        rm -rf app
     fi
 
     echo ""
