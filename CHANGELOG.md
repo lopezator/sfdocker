@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+#### Changes in version 2.0.0:
+
+* Added support for Symfony 4
+
 #### Changes in version 1.0.3:
 
 * Fixed bug in multi-project shared services. Removed the COMPOSE-FILE directive.
