@@ -329,6 +329,17 @@ if [[ $1 == "composer" ]]; then
     FOUND=1
 fi
 
+# YARN handling
+if [[ $1 == "yarn" ]]; then
+    if [[ $SYMFONY_VERSION == 4 && $2 == "encore" ]]; then
+        $EXEC $CONTAINER $SHELL_C "$1 run $2 $3";
+        FOUND=1;
+    else
+        $EXEC $CONTAINER $SHELL_C "$1 $2 $3 $4";
+        FOUND=1;
+    fi
+fi
+
 # Gulp handling
 if [[ $1 == "gulp" ]]; then
     $EXEC $CONTAINER $SHELL_C "$1 $2 $3 $4";
