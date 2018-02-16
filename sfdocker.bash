@@ -170,7 +170,7 @@ else
     done < $CONFIG_FILE_PATH
 fi
 
-if [[ $SYMFONY_VERSION == 4 ] || [ $SYMFONY_VERSION == 3 ]]; then
+if [[ $SYMFONY_VERSION == 4 || $SYMFONY_VERSION == 3 ]]; then
     CONSOLE_PATH="bin/console"
 fi
 
