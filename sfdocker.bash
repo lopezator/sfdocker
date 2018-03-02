@@ -222,6 +222,11 @@ if [[ $1 == "create" ]]; then
     FOUND=1
 fi
 
+if [[ $1 == "remove" ]]; then
+    $COMPOSE down
+    FOUND=1
+fi
+
 if [[ $1 == "stop" ]]; then
     $COMPOSE stop
     FOUND=1

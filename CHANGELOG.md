@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+#### Changes in version 2.0.1:
+
+* Added remove command
+
 #### Changes in version 2.0.0:
 
 * Added support for Symfony 3.* && Symfony 4.*

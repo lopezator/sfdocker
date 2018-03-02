@@ -58,6 +58,10 @@ $ ./sfdocker start
 ```
 $ ./sfdocker create
 ```
+#### Remove docker containers:
+```
+$ ./sfdocker remove
+```
 #### Stop docker:
 ```
 $ ./sfdocker stop
