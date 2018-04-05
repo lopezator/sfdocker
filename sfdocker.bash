@@ -179,7 +179,11 @@ EXEC_T="$COMPOSE exec -T --user $DEFAULT_USER"
 
 # Sfdocker handling
 if [[ $1 == "self-update" ]]; then
-    bpkg install lopezator/sfdocker && cp -rf app/deps/bin/sfdocker && rm -rf app/deps/
+    rm -rf app/deps/bin
+    rm -rf app/deps/sfdocker
+    cd app
+    bpkg install lopezator/sfdocker
+    cd ..
     FOUND=1
 fi
 
