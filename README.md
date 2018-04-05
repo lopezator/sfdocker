@@ -111,7 +111,6 @@ $ ./sfdocker ps
 ```
 #### Docker logs:
 ```
-
 # Show logs for the default container only:
 
 $ ./sfdocker logs <-f>
@@ -124,7 +123,7 @@ $ ./sfdocker logs all <-f>
 
 $ ./sfdocker logs <container_name> <-f>
 
-Note: All ./sfdocker logs commands accepts an optional LAST argument -f to simulate tail -f behaviour
+Note: All ./sfdocker logs commands accepts an optional LAST argument "-f" to simulate "tail -f" behaviour
 
 ```
 2.- Sfdocker handling:
