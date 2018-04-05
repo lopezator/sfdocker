@@ -185,7 +185,7 @@ if [[ $1 == "self-update" ]]; then
     fi
     $SUDO $1
 
-    bpkg install lopezator/sfdocker && cp -rf deps/bin/sfdocker /usr/bin/sfdocker && rm -rf deps/
+    bpkg install lopezator/sfdocker && cp -rf deps/bin/sfdocker && rm -rf deps/
     FOUND=1
 fi
 
