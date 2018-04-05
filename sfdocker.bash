@@ -259,10 +259,14 @@ fi
 
 if [[ $1 == "logs" ]]; then
     if [[ $# > 0 && $2 != "all" ]]; then
-        if [[ $# > 1 ]]; then
-            CONTAINER=$2
-        fi
-      $COMPOSE logs | grep $CONTAINER
+      if [[ $# > 1 && $2 != "-f" ]]; then
+        CONTAINER=$2
+      fi
+      if [[ $2 == "-f" || $3 == "-f" ]]; then
+        $COMPOSE logs --tail=0 --follow | grep $CONTAINER
+      else
+        $COMPOSE logs | grep $CONTAINER
+      fi
     else
       $COMPOSE logs
     fi

@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+#### Changes in version 2.1.0:
+
+* Added <-f> optional LAST argument to ./sfdocker logs command to simulate the "tail -f" behaviour. 
+* Improvements into README file.
+
 #### Changes in version 2.0.1:
 
 * Added remove command

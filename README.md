@@ -78,17 +78,54 @@ $ ./sfdocker build
 ```
 $ ./sfdocker destroy
 ```
-#### Enter in docker (default value: <sfdocker_default_container>) <-p> optional modifier starts the container as privileged user (root):
+#### Enter in docker containers
 ```
-$ ./sfdocker enter <container> <-p/-u user>
+# Enter into the default container with the default user
+
+$ ./sfdocker enter
+
+# Enter into the default container (as privileged user, root):
+
+$ ./sfdocker enter -p
+
+# Enter into default container specifing an user:
+
+$ ./sfdocker enter -u <user_name>
+
+# Enter into other container with the default user
+
+$ ./sfdocker enter <container_name>
+
+# Enter into other container (as privileged user, root):
+
+$ ./sfdocker enter <container_name> -p
+
+# Enter into other container specifing an user:
+
+$ ./sfdocker enter <container_name> -u <user_name>
+
 ```
 #### Show running containers:
 ```
 $ ./sfdocker ps
 ```
-#### Docker logs (default value: <sfdocker_default_container>):
+#### Docker logs:
 ```
-$ ./sfdocker logs <container/all>
+
+# Show logs for the default container only:
+
+$ ./sfdocker logs <-f>
+
+# Show logs for all containers:
+
+$ ./sfdocker logs all <-f>
+
+# Show logs for the specified container:
+
+$ ./sfdocker logs <container_name> <-f>
+
+Note: All ./sfdocker logs commands accepts an optional LAST argument -f to simulate tail -f behaviour
+
 ```
 2.- Sfdocker handling:
 ------------------------------
