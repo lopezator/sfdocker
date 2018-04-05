@@ -11,7 +11,7 @@ $ sudo -s
 $ curl -Lo- "https://raw.githubusercontent.com/bpkg/bpkg/master/setup.sh" | bash
 ```
 
-Install sfdocker package for the first time (if you are updating, goto point 5):
+Install sfdocker package for the first time (if you are updating, goto point 2, section update):
 --------------------------------------------------------------------------------
 
 Symfony 2/3:
