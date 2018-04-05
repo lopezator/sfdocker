@@ -4,7 +4,7 @@ Installation
 ============
 
 Install bpkg:
------------------
+-------------
 
 ```
 $ sudo -s
@@ -12,7 +12,7 @@ $ curl -Lo- "https://raw.githubusercontent.com/bpkg/bpkg/master/setup.sh" | bash
 ```
 
 Install sfdocker package for the first time (if you are updating, goto point 2, section update):
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------
 
 Symfony 2/3:
 ```
@@ -127,7 +127,7 @@ Note: All ./sfdocker logs commands accepts an optional LAST argument "-f" to sim
 
 ```
 2.- Sfdocker handling:
-------------------------------
+----------------------
 
 #### Configure sfdocker
 ```

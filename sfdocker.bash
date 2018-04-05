@@ -179,13 +179,7 @@ EXEC_T="$COMPOSE exec -T --user $DEFAULT_USER"
 
 # Sfdocker handling
 if [[ $1 == "self-update" ]]; then
-    SUDO=''
-    if (( $EUID != 0 )); then
-        SUDO='sudo'
-    fi
-    $SUDO $1
-
-    bpkg install lopezator/sfdocker && cp -rf deps/bin/sfdocker && rm -rf deps/
+    bpkg install lopezator/sfdocker && cp -rf app/deps/bin/sfdocker && rm -rf app/deps/
     FOUND=1
 fi
 
